@@ -11,7 +11,7 @@
 -include_lib("kernel/include/file.hrl").
 
 %% API
--export([find_erl/1]).
+-export([find_erl/1, regex_count/2]).
 
 find_erl(Directory) ->
   find_erl(Directory, queue:new()).
@@ -33,7 +33,13 @@ handle_directory(Directory, Queue) ->
   .
 
 handle_regular_file(Name, Queue) ->
-  erlang:error(not_implemented).
+  case filename:extension(Name) of
+    ".erl" ->
+      Func = fun() -> dequeue_and_run(Queue) end,
+      {continue, Name, Func};
+    _NotErl ->
+      dequeue_and_run(Queue)
+  end.
 
 dequeue_and_run(Queue) ->
   case queue:out(Queue) of
@@ -42,4 +48,11 @@ dequeue_and_run(Queue) ->
   end.
 
 enqueue_many(Directory, FileNames, Queue) ->
-  erlang:error(not_implemented).
+  Func = fun(File, Q) -> queue:in(filename:join(Directory, File), Q) end,
+  lists:foldl(Func, Queue, FileNames).
+
+regex_count(Re, Str) ->
+  case re:run(Str, Re, [global]) of
+    nomatch -> 0;
+    {match, List} -> length(List)
+  end.
