@@ -6,13 +6,12 @@
 %%% @end
 %%% Created : 12. 十一月 2017 下午1:38
 %%%-------------------------------------------------------------------
--module(erlcount_dispatch).
--author("yangdoudou").
--behavior(gen_fsm).
-
 %% API
+-module(erlcount_dispatch).
+-behaviour(gen_fsm).
 -export([start_link/0, complete/4]).
--export([init/1, dispatching/2, listening/2, handle_event/3, handle_sync_event/4, handle_info/3, terminate/3, code_change/4]).
+-export([init/1, dispatching/2, listening/2, handle_event/3,
+  handle_sync_event/4, handle_info/3, terminate/3, code_change/4]).
 
 -define(POOL, erlcount).
 -record(data, {regex=[], refs=[]}).
